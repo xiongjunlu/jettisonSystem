@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ABTest-获取用户标签</title>
+</head>
+<body>
+  <div class="main-container" id="main-container">
+    <div class="main-container-inner">
+      <div class="main-content">
+      </div>
+    </div>
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+      <i class="icon-double-angle-up icon-only bigger-110"></i>
+    </a>
+</div>
+<script type="text/javascript">
+  window.onload = function () {
+    //获取URL上的参数
+    function getQueryString(name) {
+      var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+      var paramStr = decodeURI(window.location.href);
+      var paramStr = paramStr.substr(paramStr.indexOf("?") + 1);
+      var jumpDataStr = "";
+      // 由于跳转对象中存在“&”影响正则正常解析，所以先将jumpData取出
+      var begin = paramStr.indexOf("jumpData");
+      var end = paramStr.lastIndexOf("}");
+      if (begin > -1) { //说明存在jumpData参数
+        var jumpInfo = paramStr.substr(begin, end + 1);
+        paramStrPre = paramStr.substr(0, begin);
+        paramStrAfter = paramStr.substr(end + 1);
+        paramStr = paramStrPre + paramStrAfter;
+        jumpDataStr = jumpInfo.substr(jumpInfo.indexOf("{"));
+      }
+      if (name == "jumpData") {  //获得跳转对象字段
+          return jumpDataStr;
+      }
+      var r = paramStr.match(reg);
+      if (r != null) return unescape(r[2]); return null;
+    }
+
+    if (window.opener != null) {
+      var field = getQueryString("field");
+      var operation = getQueryString("oper");
+      if (operation == "cert") {
+        var labelType = getQueryString("id");
+        var labelTypeName = getQueryString("name");
+        var resultData = { "labelType": labelType, "labelTypeName": labelTypeName };
+        var resultDataStr = field + "|_|" + JSON.stringify(resultData);
+        window.opener.postMessage(resultDataStr, '*');
+        window.close();
+      } else if (operation == "cancel") {
+        var resultJumpData = 'cancel';
+        if (window.opener != null) {
+          window.opener.postMessage(resultJumpData, '*');
+          window.close();
+        }
+      }
+      else if (operation == "clean") {
+        var resultJumpData = 'clean';
+        if (window.opener != null) {
+          window.opener.postMessage(resultJumpData, '*');
+          window.close();
+        }
+      }
+    }
+  }
+</script>
+</body>
+</html>
